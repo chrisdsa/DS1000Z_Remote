@@ -105,3 +105,6 @@ share/
 ssl/
 translations/
 var/
+
+#project
+captures/
