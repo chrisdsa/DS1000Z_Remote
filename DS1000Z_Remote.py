@@ -27,11 +27,25 @@ import os
 port = 5555;
 
 # Communication constants
-timeout  = 1
+short_timeout  = 1
 long_timout = 5
 
 
 # Path to store screenshots
 capture_path = "captures/";
 
+# Create the folder if it doesn't exist
+if not os.path.exists(capture_path):
+    os.makedirs(capture_path)
 
+# Request instrument IP
+instr_ip = input("Enter instrument IP : ")
+
+# Open connection
+try :
+    tn = telnetlib.Telnet(instr_ip,port,short_timeout)
+except :
+    print("ERROR : Connection Timout")
+    pass
+
+# Request Instrument ID
