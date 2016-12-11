@@ -84,6 +84,24 @@ ENV/
 
 # Spyder project settings
 .spyderproject
-
+.spyproject
 # Rope project settings
 .ropeproject
+
+# Anaconda environment
+bin/
+conda-meta/
+doc/
+etc/
+include/
+lib/
+libexec/
+mkspecs/
+phrasebooks/
+plugins/
+qml/
+sbin/
+share/
+ssl/
+translations/
+var/
