@@ -8,6 +8,7 @@ Created on Sun Dec 11 09:14:50 2016
 
 #import csv
 
+# tn : telnetlib.Telnet(ip,port,timeout)
 class DS1000Z:
 
     def __init__(self,tn):
@@ -71,21 +72,67 @@ class DS1000Z:
     #        "MAXimum"
     #        "RAW"
     """
-    def get_csv(tn,mode):
+    def get_csv(self,mode):
         
         # TMC Header #NXXXXXXXXX
         TMC_Length = 11
         
+        # Data array : timestamp, CH1, CH2, CH3, CH4
+        data = [['t'],[],[],[],[]]
         
-        channel_list = get_displayed_channels(tn)
+        # Get Mem Depth
+        if mode == NORMal:
+            mdep = 1200
+        else:
+            mdep = self.get_memory_depth()
+        # Get Sa Rate
+        srate = float(self.command("ACQ:SRATe?"))
+        # Get Scale
+        scal = float(self.command("TIM:SCAL?"))
+        # Horizontal Grid
+        h_grid = 12
         
+        # Timestamp
+        step = h_grid*scal/mdep
+        step = round(step,12)
+        timstp = ""
+        
+        for i in range(0,mdep):
+            timstp+=str(round(i*step,12))+','
+        
+        timstp = timstp.split(',')
+        timstp = timstp[:-1]
+        
+        data[0]+= timstp
+        
+        channel_list = self.get_displayed_channels()
+        data_index = 1
         # For each active channel
         for channel in channel_list:
             # Select Source
-            command(tn,":WAVeform:SOURce "+channel)
+            self.command(":WAVeform:SOURce "+channel)
             # Set Format to ASCII
-            command(tn,":WAVeform:FORMat ASC")
+            self.command(":WAVeform:FORMat ASC")
             # Set Mode
-            command(tn,":WAVeform:MODE"+mode)
-
+            self.command(":WAVeform:MODE"+mode)
+            
+            data[data_index] += channel
+            buff = ""
+          
+            # ASII Format maximum point = 15625
+            # Number of point per batch
+            max_pts_batch = 15620
+            max_batch = int(mdep // max_pts_batch + (mdep % max_pts_batch >0))
+            size_batch = mdep // max_batch
+            
+            for batch in range(0,max_batch):
+                start = int(batch*size_batch+1)
+                if batch == (max_batch-1):
+                    stop = int(mdep)
+                else:
+                    stop = int((batch+1)*size_batch)
+                print("start = "+str(start)+"  stop= "+str(stop))
+                #self.command(":WAVeform:STARt"+str(start))
+            
+            
     """
