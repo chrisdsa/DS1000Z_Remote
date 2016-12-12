@@ -68,6 +68,11 @@ def get_displayed_channels(tn):
 #        "RAW"
 """
 def get_csv(tn,mode):
+    
+    # TMC Header #NXXXXXXXXX
+    TMC_Length = 11
+    
+    
     channel_list = get_displayed_channels(tn)
     
     # For each active channel
@@ -78,5 +83,5 @@ def get_csv(tn,mode):
         command(tn,":WAVeform:FORMat ASC")
         # Set Mode
         command(tn,":WAVeform:MODE"+mode)
-        # TMC Header #NXXXXXXXXX
+
 """
