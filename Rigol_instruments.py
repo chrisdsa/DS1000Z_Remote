@@ -6,7 +6,7 @@ Created on Sun Dec 11 09:14:50 2016
 @author: christian-dsa
 """
 
-#import csv
+import csv
 
 # tn : telnetlib.Telnet(ip,port,timeout)
 class DS1000Z:
@@ -133,6 +133,8 @@ class DS1000Z:
                     stop = int((batch+1)*size_batch)
                 print("start = "+str(start)+"  stop= "+str(stop))
                 #self.command(":WAVeform:STARt"+str(start))
+                #self.command(":WAVeform:STARt"+str(stop))
+            data_index = data_index +1
+            print(data_index)
             
-            
-    """
+    """            
