@@ -20,6 +20,7 @@ Rigol_functions :
 """
 import telnetlib
 import os
+import Rigol_instruments
 
 
 # Rigol/LXI specific constants

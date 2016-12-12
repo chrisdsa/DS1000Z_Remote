@@ -7,86 +7,85 @@ Created on Sun Dec 11 09:14:50 2016
 """
 
 #import csv
-import telnetlib
 
-class DS1000Z(ip,port):
+class DS1000Z:
 
-    short_timeout  = 1
-    long_timout = 5
-    tn = telnetlib.telnet(ip,port,short_timeout)
-	
-	def command(tn, SCPI):
-		command_timeout = 1
+    def __init__(self,tn):
+        self.tn = tn
+        pass
 
-		response = ""
+    def command(self,SCPI):
+        command_timeout = 1
 
-		SCPI = SCPI.encode('ascii')
-		
+        response = ""
 
-		tn.write(b"*OPC?")
-		response = tn.read_until(b"\n",command_timeout)
-		
-		if response == b'1\n' :
-			tn.write(SCPI)
-			response = tn.read_until(b"\n",command_timeout)
-			response = response.decode("utf-8")
-		else :
-			response = "ERROR: Busy"
-			
-		return response
-		
-	def get_memory_depth(tn):
-		# Define number of horizontal grid divisions for DS1000Z
-		h_grid = 12
+        SCPI = SCPI.encode('ascii')
+        
 
-		# ACQuire:MDEPth
-		mdep = command(tn, "ACQ:MDEP?")
+        self.tn.write(b"*OPC?")
+        response = self.tn.read_until(b"\n",command_timeout)
+        
+        if response == b'1\n' :
+            self.tn.write(SCPI)
+            response = self.tn.read_until(b"\n",command_timeout)
+            response = response.decode("utf-8")
+        else :
+            response = "ERROR: Busy"
+            
+        return response
+        
+    def get_memory_depth(self):
+        # Define number of horizontal grid divisions for DS1000Z
+        h_grid = 12
 
-		# if mdep is "AUTO"
-		if mdep == "AUTO\n":
-			# ACQuire:SRATe
-			srate = float(command(tn, "ACQ:SRAT?"))
+        # ACQuire:MDEPth
+        mdep = command(tn, "ACQ:MDEP?")
 
-			# TIMebase[:MAIN]:SCALe
-			scal = float(command(tn, "TIM:SCAL?"))
+        # if mdep is "AUTO"
+        if mdep == "AUTO\n":
+            # ACQuire:SRATe
+            srate = float(command(tn, "ACQ:SRAT?"))
 
-			# mdep = h_grid * scal * srate
-			mdep = h_grid * scal * srate
+            # TIMebase[:MAIN]:SCALe
+            scal = float(command(tn, "TIM:SCAL?"))
 
-		# return mdep
-		return int(mdep)
-		
-	def get_displayed_channels(tn):
-		# Scan for displayed channels
-		channel_list = []
-		for channel in ["chan1", "chan2", "chan3", "chan4", "math"]:
-			response = command(tn, channel + ":display?")
+            # mdep = h_grid * scal * srate
+            mdep = h_grid * scal * srate
 
-			# Strip '\n' terminator
-			response = response[:-1]
-			if response == '1':
-				channel_list += [channel]
-		return channel_list
+        # return mdep
+        return int(mdep)
+        
+    def get_displayed_channels(self):
+        # Scan for displayed channels
+        channel_list = []
+        for channel in ["chan1", "chan2", "chan3", "chan4", "math"]:
+            response = command(tn, channel + ":display?")
 
-	# mode : "NORMal"
-	#        "MAXimum"
-	#        "RAW"
-	"""
-	def get_csv(tn,mode):
-		
-		# TMC Header #NXXXXXXXXX
-		TMC_Length = 11
-		
-		
-		channel_list = get_displayed_channels(tn)
-		
-		# For each active channel
-		for channel in channel_list:
-			# Select Source
-			command(tn,":WAVeform:SOURce "+channel)
-			# Set Format to ASCII
-			command(tn,":WAVeform:FORMat ASC")
-			# Set Mode
-			command(tn,":WAVeform:MODE"+mode)
+            # Strip '\n' terminator
+            response = response[:-1]
+            if response == '1':
+                channel_list += [channel]
+        return channel_list
 
-	"""
+    # mode : "NORMal"
+    #        "MAXimum"
+    #        "RAW"
+    """
+    def get_csv(tn,mode):
+        
+        # TMC Header #NXXXXXXXXX
+        TMC_Length = 11
+        
+        
+        channel_list = get_displayed_channels(tn)
+        
+        # For each active channel
+        for channel in channel_list:
+            # Select Source
+            command(tn,":WAVeform:SOURce "+channel)
+            # Set Format to ASCII
+            command(tn,":WAVeform:FORMat ASC")
+            # Set Mode
+            command(tn,":WAVeform:MODE"+mode)
+
+    """
