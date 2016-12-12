@@ -26,7 +26,7 @@ def command(tn, SCPI):
         response = tn.read_until(b"\n",command_timeout)
         response = response.decode("utf-8")
     else :
-        response = "ERROR"
+        response = "ERROR: Busy"
         
     return response
     
