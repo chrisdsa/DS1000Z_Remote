@@ -49,4 +49,7 @@ except :
     print("ERROR : Connection Timout")
     pass
 
+# Assign DS1000Z class
+ds = Rigol_instruments.DS1000Z(tn)
+
 # Request Instrument ID

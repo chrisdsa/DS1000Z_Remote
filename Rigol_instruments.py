@@ -39,15 +39,15 @@ class DS1000Z:
         h_grid = 12
 
         # ACQuire:MDEPth
-        mdep = command(tn, "ACQ:MDEP?")
+        mdep = self.command("ACQ:MDEP?")
 
         # if mdep is "AUTO"
         if mdep == "AUTO\n":
             # ACQuire:SRATe
-            srate = float(command(tn, "ACQ:SRAT?"))
+            srate = float(self.command("ACQ:SRAT?"))
 
             # TIMebase[:MAIN]:SCALe
-            scal = float(command(tn, "TIM:SCAL?"))
+            scal = float(self.command("TIM:SCAL?"))
 
             # mdep = h_grid * scal * srate
             mdep = h_grid * scal * srate
@@ -59,7 +59,7 @@ class DS1000Z:
         # Scan for displayed channels
         channel_list = []
         for channel in ["chan1", "chan2", "chan3", "chan4", "math"]:
-            response = command(tn, channel + ":display?")
+            response = self.command(channel + ":display?")
 
             # Strip '\n' terminator
             response = response[:-1]
