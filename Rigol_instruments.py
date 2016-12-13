@@ -44,14 +44,26 @@ class DS1000Z:
     # 1 CH   : "AUTO","12k","120k","1.2M","12M"
     # 2 CH   : "AUTO","6k","60k","600k","6M"
     # 3,4 CH : "AUTO","3k","30k","300k","3M"
-    """
     def set_memory_depth(self,value):
+        if value == "12k" : value = "12000"
+        elif value == "120k" : value = "120000"
+        elif value == "1.2M" : value = "1200000"
+        elif value == "12M" : value = "12000000"
+        elif value == "6k" : value = "6000"
+        elif value == "60k" : value = "60000"
+        elif value == "600k" : value = "600000"
+        elif value == "6M" : value = "6000000"
+        elif value == "3k" : value = "3000"
+        elif value == "30k" : value = "30000"
+        elif value == "300k" : value = "300000"
+        elif value == "3M" : value = "3000000"
+        else : pass
         
         self.command(":ACQuire:MDEPth "+value)
         mdep = self.command("ACQ:MDEP?")
         print("Memory set to : "+str(mdep))
         return mdep
-    """   
+  
     def get_memory_depth(self):
         # Define number of horizontal grid divisions for DS1000Z
         h_grid = 12
