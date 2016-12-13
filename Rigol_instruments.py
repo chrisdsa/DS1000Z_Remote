@@ -81,7 +81,7 @@ class DS1000Z:
         data = [['t'],[],[],[],[]]
         
         # Get Mem Depth
-        if mode == NORMal:
+        if mode == "NORMal":
             mdep = 1200
         else:
             mdep = self.get_memory_depth()
@@ -100,13 +100,13 @@ class DS1000Z:
         for i in range(0,mdep):
             timstp+=str(round(i*step,12))+','
         
-        timstp = timstp.split(',')
         timstp = timstp[:-1]
-        
+        timstp = timstp.split(',')        
         data[0]+= timstp
         
         channel_list = self.get_displayed_channels()
         data_index = 1
+        
         # For each active channel
         for channel in channel_list:
             # Select Source
@@ -116,14 +116,15 @@ class DS1000Z:
             # Set Mode
             self.command(":WAVeform:MODE"+mode)
             
-            data[data_index] += channel
-            buff = ""
-          
+            
             # ASII Format maximum point = 15625
             # Number of point per batch
             max_pts_batch = 15620
             max_batch = int(mdep // max_pts_batch + (mdep % max_pts_batch >0))
             size_batch = mdep // max_batch
+            
+            # Get the data
+            buff = ""
             
             for batch in range(0,max_batch):
                 start = int(batch*size_batch+1)
@@ -131,10 +132,17 @@ class DS1000Z:
                     stop = int(mdep)
                 else:
                     stop = int((batch+1)*size_batch)
-                print("start = "+str(start)+"  stop= "+str(stop))
-                #self.command(":WAVeform:STARt"+str(start))
-                #self.command(":WAVeform:STARt"+str(stop))
+                
+                self.command(":WAVeform:STARt"+str(start))
+                self.command(":WAVeform:STOP"+str(stop))
+                buff += self.command(":WAVeform:DATA?")
+            
+            # Move data from buffer to list
+            buff = buff[TMC_Length:-1]
+            buff = str(channel)+","+buff
+            buff = buff.split(',')
+            data[data_index] = buff
             data_index = data_index +1
-            print(data_index)
+            
             
     """            
