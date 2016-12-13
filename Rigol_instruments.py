@@ -15,6 +15,10 @@ class DS1000Z:
     def __init__(self,tn):
         self.tn = tn
         pass
+        
+    def set_capture_path(self,path):
+        self.capt_path = path
+        
 
     def command(self,SCPI):
         command_timeout = 1
@@ -35,7 +39,19 @@ class DS1000Z:
             response = "ERROR: Busy"
             
         return response
+
+    # Value : 
+    # 1 CH   : "AUTO","12k","120k","1.2M","12M"
+    # 2 CH   : "AUTO","6k","60k","600k","6M"
+    # 3,4 CH : "AUTO","3k","30k","300k","3M"
+    """
+    def set_memory_depth(self,value):
         
+        self.command(":ACQuire:MDEPth "+value)
+        mdep = self.command("ACQ:MDEP?")
+        print("Memory set to : "+str(mdep))
+        return mdep
+    """   
     def get_memory_depth(self):
         # Define number of horizontal grid divisions for DS1000Z
         h_grid = 12
@@ -72,7 +88,7 @@ class DS1000Z:
     # mode : "NORMal"
     #        "MAXimum"
     #        "RAW"
-    """
+    # Optional : "filename"
     def get_csv(self,mode,*args):
         
         # TMC Header #NXXXXXXXXX
@@ -95,6 +111,7 @@ class DS1000Z:
         h_grid = 12
         
         # TIMESTAMP #
+        print(" Setting timestamp")
         step = h_grid*scal/mdep
         step = round(step,12)
         timstp = ""
@@ -137,8 +154,8 @@ class DS1000Z:
                 else:
                     stop = int((batch+1)*size_batch)
                 
-                self.command(":WAVeform:STARt"+str(start))
-                self.command(":WAVeform:STOP"+str(stop))
+                self.command(":WAVeform:STARt "+str(start))
+                self.command(":WAVeform:STOP "+str(stop))
                 buff += self.command(":WAVeform:DATA?")
             
             # Move data from buffer to list
@@ -149,11 +166,36 @@ class DS1000Z:
             data_index = data_index +1
         
         # CSV #
+        print("Saving CSV")
+        # Set filename
         if len(args) > 0:
-            filename = args[0]
+            filename = self.capt_path+args[0]
         else:
-            time = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-            filename = "DS1000Z_"+time+".csv"
+            time = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
+            filename = self.capt_path+"DS1000Z_"+time+".csv"
         
+        # Check the data lenght, keep the minimum
+        nb_active_channel = len(channel_list)
+        range_active_channel = range(0,(nb_active_channel+1))
+        min_val = mdep+1
+        for i in range_active_channel:
+            l_data = len(data[i])
+            temp_min = min(min_val,l_data)
+            if temp_min < min_val:
+                min_val = temp_min
         
-    """            
+        print("Number of point : "+str(min_val))
+        
+        with open(filename,'w',newline='') as csvfile:
+            spamwriter = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            i = 0
+            while i < min_val:
+                if nb_active_channel == 1:
+                    spamwriter.writerow([data[0][i],data[1][i]])
+                elif nb_active_channel == 2:
+                    spamwriter.writerow([data[0][i],data[1][i],data[2][i]])
+                elif nb_active_channel == 3:
+                    spamwriter.writerow([data[0][i],data[1][i],data[2][i],data[3][i]])
+                elif nb_active_channel == 4:
+                    spamwriter.writerow([data[0][i],data[1][i],data[2][i],data[3][i],data[4][i]])                    
+                i = i+1           
