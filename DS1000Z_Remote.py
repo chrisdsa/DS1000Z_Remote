@@ -53,3 +53,15 @@ except :
 ds = Rigol_instruments.DS1000Z(tn)
 
 # Request Instrument ID
+instr_id = ds.command("*IDN?")
+print("Instrument ID : "+instr_id)
+
+# Path to store screenshots
+capture_path = "captures/";
+
+# Create the folder if it doesn't exist
+if not os.path.exists(capture_path):
+    os.makedirs(capture_path)
+
+# Set Capture path to DS1000Z
+ds.set_capture_path(capture_path)
