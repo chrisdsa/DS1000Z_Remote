@@ -7,6 +7,7 @@ Created on Sun Dec 11 09:14:50 2016
 """
 
 import csv
+import datetime
 
 # tn : telnetlib.Telnet(ip,port,timeout)
 class DS1000Z:
@@ -72,7 +73,7 @@ class DS1000Z:
     #        "MAXimum"
     #        "RAW"
     """
-    def get_csv(self,mode):
+    def get_csv(self,mode,*args):
         
         # TMC Header #NXXXXXXXXX
         TMC_Length = 11
@@ -84,6 +85,7 @@ class DS1000Z:
         if mode == "NORMal":
             mdep = 1200
         else:
+            self.command(":STOP")
             mdep = self.get_memory_depth()
         # Get Sa Rate
         srate = float(self.command("ACQ:SRATe?"))
@@ -92,7 +94,7 @@ class DS1000Z:
         # Horizontal Grid
         h_grid = 12
         
-        # Timestamp
+        # TIMESTAMP #
         step = h_grid*scal/mdep
         step = round(step,12)
         timstp = ""
@@ -107,23 +109,25 @@ class DS1000Z:
         channel_list = self.get_displayed_channels()
         data_index = 1
         
+        # ASII Format maximum point = 15625
+        # Number of point per batch
+        max_pts_batch = 15620
+        max_batch = int(mdep // max_pts_batch + (mdep % max_pts_batch >0))
+        size_batch = mdep // max_batch
+        
+        # DATA #
         # For each active channel
         for channel in channel_list:
+            print("Getting "+channel+" data")
+            
             # Select Source
             self.command(":WAVeform:SOURce "+channel)
             # Set Format to ASCII
             self.command(":WAVeform:FORMat ASC")
             # Set Mode
             self.command(":WAVeform:MODE"+mode)
-            
-            
-            # ASII Format maximum point = 15625
-            # Number of point per batch
-            max_pts_batch = 15620
-            max_batch = int(mdep // max_pts_batch + (mdep % max_pts_batch >0))
-            size_batch = mdep // max_batch
-            
-            # Get the data
+                       
+            # Get the channel data
             buff = ""
             
             for batch in range(0,max_batch):
@@ -143,6 +147,13 @@ class DS1000Z:
             buff = buff.split(',')
             data[data_index] = buff
             data_index = data_index +1
-            
-            
+        
+        # CSV #
+        if len(args) > 0:
+            filename = args[0]
+        else:
+            time = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+            filename = "DS1000Z_"+time+".csv"
+        
+        
     """            
