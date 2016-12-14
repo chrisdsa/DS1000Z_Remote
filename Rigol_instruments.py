@@ -181,7 +181,7 @@ class DS1000Z:
         print("Saving CSV")
         # Set filename
         if len(args) > 0:
-            filename = self.capt_path+args[0]
+            filename = self.capt_path+args[0]+".csv"
         else:
             time = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
             filename = self.capt_path+"DS1000Z_"+time+".csv"
