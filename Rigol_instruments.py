@@ -8,6 +8,7 @@ Created on Sun Dec 11 09:14:50 2016
 
 import csv
 import datetime
+import time
 
 # tn : telnetlib.Telnet(ip,port,timeout)
 class DS1000Z:
@@ -213,21 +214,28 @@ class DS1000Z:
                 i = i+1 
 
     def get_bmp(self,*args):
-        answer_wait_s = 15
+        answer_wait_s = 20
+        file_size = 1152068
+
         # filename
         if len(args) > 0:
             filename = self.capt_path+args[0]+".bmp"
         else:
-            time = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
-            filename = self.capt_path+"DS1000Z_"+time+".bmp"
+            time_now = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
+            filename = self.capt_path+"DS1000Z_"+time_now+".bmp"
         
-        # Set timestamp with datetime
+        # Set timestamp with time
+        timeout = time.time()+answer_wait_s
+        
+        # Get Data
         response = b""
         self.tn.write(b":DISPlay:DATA?")
-        while len(response) != 1152068:
+        while len(response) < file_size:
             response += self.tn.read_eager()
             # Set mecanism to break the loop if it is too long
-            
+            if time.time()>timeout:
+                print("ERROR : Timeout")
+                break
         # Save to bmp
         TMC_header = response[1]-48+2
         scr_file = open(filename, "wb")
