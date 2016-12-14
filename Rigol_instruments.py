@@ -210,4 +210,52 @@ class DS1000Z:
                     spamwriter.writerow([data[0][i],data[1][i],data[2][i],data[3][i]])
                 elif nb_active_channel == 4:
                     spamwriter.writerow([data[0][i],data[1][i],data[2][i],data[3][i],data[4][i]])                    
-                i = i+1           
+                i = i+1 
+
+    def get_bmp(self,*args):
+        answer_wait_s = 15
+        # filename
+        if len(args) > 0:
+            filename = self.capt_path+args[0]+".bmp"
+        else:
+            time = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
+            filename = self.capt_path+"DS1000Z_"+time+".bmp"
+        
+        # Set timestamp with datetime
+        response = b""
+        self.tn.write(b":DISPlay:DATA?")
+        while len(response) != 1152068:
+            response += self.tn.read_eager()
+            # Set mecanism to break the loop if it is too long
+            
+        # Save to bmp
+        TMC_header = response[1]-48+2
+        scr_file = open(filename, "wb")
+        scr_file.write(response[TMC_header:-1])
+        scr_file.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
