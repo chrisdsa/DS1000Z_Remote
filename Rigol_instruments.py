@@ -124,6 +124,7 @@ class DS1000Z:
         h_grid = 12
         
         # TIMESTAMP #
+        # Improvement : Generate the timestamp with numpy = faster
         print(" Setting timestamp")
         step = h_grid*scal/mdep
         step = round(step,12)
@@ -179,6 +180,7 @@ class DS1000Z:
             data_index = data_index +1
         
         # CSV #
+        # Improvement : Generate csv with numpy : np.savetxt("test_reshape.csv",np.c_[x,y],fmt='%1.12e',delimiter=',')
         print("Saving CSV")
         # Set filename
         if len(args) > 0:
