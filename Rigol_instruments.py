@@ -205,8 +205,6 @@ class DS1000Z:
             if temp_min < min_val:
                 min_val = temp_min
         
-        #print("Number of point : "+str(min_val))
-        
         # Create CSV
         with open(filename,'w',newline='') as csvfile:
             spamwriter = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -233,11 +231,6 @@ class DS1000Z:
                     spamwriter.writerow([data[0][i-1],data[1][i],data[2][i],data[3][i],data[4][i]])                    
                 i = i+1 
 
-        
-        
-        
-        
-        
     def get_bmp(self,*args):
         answer_wait_s = 20
         file_size = 1152068
