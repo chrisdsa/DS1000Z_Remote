@@ -205,7 +205,7 @@ class DS1000Z:
             if temp_min < min_val:
                 min_val = temp_min
         
-        print("Number of point : "+str(min_val-1))
+        #print("Number of point : "+str(min_val))
         
         # Create CSV
         with open(filename,'w',newline='') as csvfile:
