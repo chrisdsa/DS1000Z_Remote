@@ -9,6 +9,7 @@ Created on Sun Dec 11 09:14:50 2016
 import csv
 import datetime
 import time
+import numpy as np
 
 # tn : telnetlib.Telnet(ip,port,timeout)
 class DS1000Z:
@@ -108,7 +109,7 @@ class DS1000Z:
         TMC_Length = 11
         
         # Data array : timestamp, CH1, CH2, CH3, CH4
-        data = [['t'],[],[],[],[]]
+        data = [[],[],[],[],[]]
         
         # Get Mem Depth
         if mode == "NORMal":
@@ -117,7 +118,7 @@ class DS1000Z:
             self.command(":STOP")
             mdep = self.get_memory_depth()
         # Get Sa Rate
-        srate = float(self.command("ACQ:SRATe?"))
+        #srate = float(self.command("ACQ:SRATe?"))
         # Get Scale
         scal = float(self.command("TIM:SCAL?"))
         # Horizontal Grid
@@ -125,9 +126,14 @@ class DS1000Z:
         
         # TIMESTAMP #
         # Improvement : Generate the timestamp with numpy = faster
-        print(" Setting timestamp")
+        print("Generate timestamp")
         step = h_grid*scal/mdep
         step = round(step,12)
+        
+        data[0] = np.arange(0,h_grid*scal,step)
+        
+        """
+        # IF NUMPY IS NOT INSTALLED 
         timstp = ""
         
         for i in range(0,mdep):
@@ -136,6 +142,7 @@ class DS1000Z:
         timstp = timstp[:-1]
         timstp = timstp.split(',')        
         data[0]+= timstp
+        """
         
         channel_list = self.get_displayed_channels()
         data_index = 1
@@ -156,7 +163,7 @@ class DS1000Z:
             # Set Format to ASCII
             self.command(":WAVeform:FORMat ASC")
             # Set Mode
-            self.command(":WAVeform:MODE"+mode)
+            self.command(":WAVeform:MODE "+mode)
                        
             # Get the channel data
             buff = ""
@@ -180,7 +187,6 @@ class DS1000Z:
             data_index = data_index +1
         
         # CSV #
-        # Improvement : Generate csv with numpy : np.savetxt("test_reshape.csv",np.c_[x,y],fmt='%1.12e',delimiter=',')
         print("Saving CSV")
         # Set filename
         if len(args) > 0:
@@ -199,22 +205,39 @@ class DS1000Z:
             if temp_min < min_val:
                 min_val = temp_min
         
-        print("Number of point : "+str(min_val))
+        print("Number of point : "+str(min_val-1))
         
+        # Create CSV
         with open(filename,'w',newline='') as csvfile:
             spamwriter = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
             i = 0
+            # Header
+            if nb_active_channel == 1:
+                spamwriter.writerow(['t',data[1][i]])
+            elif nb_active_channel == 2:
+                spamwriter.writerow(['t',data[1][i],data[2][i]])
+            elif nb_active_channel == 3:
+                spamwriter.writerow(['t',data[1][i],data[2][i],data[3][i]])
+            elif nb_active_channel == 4:
+                spamwriter.writerow(['t',data[1][i],data[2][i],data[3][i],data[4][i]])                    
+            i = i+1 
+            # Data
             while i < min_val:
                 if nb_active_channel == 1:
-                    spamwriter.writerow([data[0][i],data[1][i]])
+                    spamwriter.writerow([data[0][i-1],data[1][i]])
                 elif nb_active_channel == 2:
-                    spamwriter.writerow([data[0][i],data[1][i],data[2][i]])
+                    spamwriter.writerow([data[0][i-1],data[1][i],data[2][i]])
                 elif nb_active_channel == 3:
-                    spamwriter.writerow([data[0][i],data[1][i],data[2][i],data[3][i]])
+                    spamwriter.writerow([data[0][i-1],data[1][i],data[2][i],data[3][i]])
                 elif nb_active_channel == 4:
-                    spamwriter.writerow([data[0][i],data[1][i],data[2][i],data[3][i],data[4][i]])                    
+                    spamwriter.writerow([data[0][i-1],data[1][i],data[2][i],data[3][i],data[4][i]])                    
                 i = i+1 
 
+        
+        
+        
+        
+        
     def get_bmp(self,*args):
         answer_wait_s = 20
         file_size = 1152068
