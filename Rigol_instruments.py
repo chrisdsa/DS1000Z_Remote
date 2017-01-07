@@ -149,7 +149,8 @@ class DS1000Z:
         
         # ASII Format maximum point = 15625
         # Number of point per batch
-        max_pts_batch = 15620
+        # Set it lower if some data is missing
+        max_pts_batch = 10000
         max_batch = int(mdep // max_pts_batch + (mdep % max_pts_batch >0))
         size_batch = mdep // max_batch
         
@@ -169,31 +170,40 @@ class DS1000Z:
             buff = ""
             
             for batch in range(0,max_batch):
+                # Set start and stop point
                 start = int(batch*size_batch+1)
                 if batch == (max_batch-1):
                     stop = int(mdep)
                 else:
                     stop = int((batch+1)*size_batch)
+                print("Start : "+str(start)+" Stop : "+str(stop))
                 
+                # Get data
+                temp_buff = ""
                 self.command(":WAVeform:STARt "+str(start))
                 self.command(":WAVeform:STOP "+str(stop))
-                buff += self.command(":WAVeform:DATA?")
-            
+                temp_buff = self.command(":WAVeform:DATA?")
+                #time.sleep(1)
+
+                temp_buff = temp_buff[TMC_Length:-1]+","
+                buff += temp_buff
+                #buff += self.command(":WAVeform:DATA?")             
+             
             # Move data from buffer to list
-            buff = buff[TMC_Length:-1]
+            #buff = buff[TMC_Length:-1]
             buff = str(channel)+","+buff
             buff = buff.split(',')
             data[data_index] = buff
             data_index = data_index +1
-        
+                    
         # CSV #
         print("Saving CSV")
         # Set filename
         if len(args) > 0:
             filename = self.capt_path+args[0]+".csv"
         else:
-            time = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
-            filename = self.capt_path+"DS1000Z_"+time+".csv"
+            time_now = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
+            filename = self.capt_path+"DS1000Z_"+time_now+".csv"
         
         # Check the data lenght, keep the minimum
         nb_active_channel = len(channel_list)
@@ -230,6 +240,8 @@ class DS1000Z:
                 elif nb_active_channel == 4:
                     spamwriter.writerow([data[0][i-1],data[1][i],data[2][i],data[3][i],data[4][i]])                    
                 i = i+1 
+                
+        return min_val
 
     def get_bmp(self,*args):
         answer_wait_s = 20
