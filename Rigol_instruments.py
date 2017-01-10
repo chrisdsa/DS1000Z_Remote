@@ -125,7 +125,6 @@ class DS1000Z:
         h_grid = 12
         
         # TIMESTAMP #
-        # Improvement : Generate the timestamp with numpy = faster
         print("Generate timestamp")
         step = h_grid*scal/mdep
         step = round(step,12)
@@ -190,7 +189,6 @@ class DS1000Z:
                 #buff += self.command(":WAVeform:DATA?")             
              
             # Move data from buffer to list
-            #buff = buff[TMC_Length:-1]
             buff = str(channel)+","+buff
             buff = buff.split(',')
             data[data_index] = buff
