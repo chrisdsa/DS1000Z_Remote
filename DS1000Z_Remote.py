@@ -13,9 +13,9 @@ DS1000Z_Remote :
     DS1000Z_Remote control the terminal where the user enter the scope's ip,
     the command like : screenshot, set memory depth and so on
     
-Rigol_functions :
-    Contain all the function to interface with the rigol scope
-    These function are called by DS1000Z_Remote
+Rigol_instruments :
+    Contain all the function to interface with the rigol equipment.
+    There is a class for each instrument.
     
 """
 import telnetlib
@@ -56,12 +56,3 @@ ds = Rigol_instruments.DS1000Z(tn)
 instr_id = ds.command("*IDN?")
 print("Instrument ID : "+instr_id)
 
-# Path to store screenshots
-capture_path = "captures/";
-
-# Create the folder if it doesn't exist
-if not os.path.exists(capture_path):
-    os.makedirs(capture_path)
-
-# Set Capture path to DS1000Z
-ds.set_capture_path(capture_path)
