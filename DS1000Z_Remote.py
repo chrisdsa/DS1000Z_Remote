@@ -40,7 +40,8 @@ if not os.path.exists(capture_path):
     os.makedirs(capture_path)
 
 # Request instrument IP
-instr_ip = input("Enter instrument IP : ")
+#instr_ip = input("Enter instrument IP : ")
+instr_ip = "192.168.2.200"
 
 # Open connection
 try :
@@ -52,7 +53,18 @@ except :
 # Assign DS1000Z class
 ds = Rigol_instruments.DS1000Z(tn)
 
+# Set capture path
+ds.set_capture_path(capture_path)
+
 # Request Instrument ID
 instr_id = ds.command("*IDN?")
 print("Instrument ID : "+instr_id)
+
+# CSV
+# ds.get_csv("NORMal")
+
+# Screenshot
+# ds.get_bmp()
+
+tn.close()
 

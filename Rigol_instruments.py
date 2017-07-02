@@ -114,6 +114,7 @@ class DS1000Z:
         # Get Mem Depth
         if mode == "NORMal":
             mdep = 1200
+            self.command(":STOP")
         else:
             self.command(":STOP")
             mdep = self.get_memory_depth()
