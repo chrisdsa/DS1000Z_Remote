@@ -26,11 +26,11 @@ class DS1000Z:
         command_timeout = 1
 
         response = ""
-
+        SCPI = SCPI + "\n"
         SCPI = SCPI.encode('ascii')
         
 
-        self.tn.write(b"*OPC?")
+        self.tn.write(b"*OPC?\n")
         response = self.tn.read_until(b"\n",command_timeout)
         
         if response == b'1\n' :
