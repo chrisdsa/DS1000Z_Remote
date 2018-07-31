@@ -244,7 +244,7 @@ class DS1000Z:
 
     def get_bmp(self,*args):
         answer_wait_s = 20
-        file_size = 1152068
+        file_size = 1152054
 
         # filename
         if len(args) > 0:
@@ -258,12 +258,13 @@ class DS1000Z:
         
         # Get Data
         response = b""
-        self.tn.write(b":DISPlay:DATA?")
+        self.tn.write(b":DISPlay:DATA?\n")
         while len(response) < file_size:
             response += self.tn.read_eager()
             # Set mecanism to break the loop if it is too long
             if time.time()>timeout:
                 print("ERROR : Timeout")
+                print("Size : "+ len(response))
                 break
         # Save to bmp
         TMC_header = response[1]-48+2
