@@ -24,7 +24,6 @@ import Rigol_instruments
 
 
 # Rigol/LXI specific constants
-
 port = 5555;
 
 # Communication constants
